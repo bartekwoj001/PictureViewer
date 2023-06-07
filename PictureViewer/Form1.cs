@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,18 +16,26 @@ namespace PictureViewer
 {
     public partial class Form1 : Form
     {
-        private string _filePath = "";
-
+        private string _filePath;
 
         public Form1()
         {
             InitializeComponent();
+            DiappearDeleteButton();
 
-            if(_filePath != null)
-                btnDelete.Enabled = false;
+            if (!string.IsNullOrWhiteSpace(IsLastPath))
+            {
+                pbPicture.Image = Image.FromFile(IsLastPath);
+                // pbPicture.Image = Image.FromFile($@"{Path.GetDirectoryName(Application.ExecutablePath)}\path.txt");
+                btnDelete.Enabled = true;
+            }
             
         }
-        
+        private void DiappearDeleteButton()
+        {
+            if(pbPicture.Image == null) 
+                btnDelete.Enabled = false;
+        }
         private void SetPicture()
         {            
                 try
@@ -62,6 +71,7 @@ namespace PictureViewer
         {
             get
             {
+                
                 return Settings.Default.IsLastPath;
             }
             set
@@ -73,14 +83,19 @@ namespace PictureViewer
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             IsLastPath = _filePath;
+            //File.WriteAllText($@"{Path.GetDirectoryName(Application.ExecutablePath)}\path.txt", _filePath);
+
             Settings.Default.Save();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            _filePath = Settings.Default.IsLastPath;
-            pbPicture.Image = Image.FromFile(_filePath);
+           
 
+           //var text = File.ReadAllText($@"{Path.GetDirectoryName(Application.ExecutablePath)}\path.txt");
+           // if(!string.IsNullOrWhiteSpace(text))
+           // pbPicture.Image = Image.FromFile(text);
+           
         }
     }
 }
